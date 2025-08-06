@@ -22,31 +22,38 @@ def ShowLoginPage(request):
     return render(request,"login_page.html")
 
 def doLogin(request):
-    if request.method!="POST":
+    if request.method != "POST":
         return HttpResponse("<h2>Method Not Allowed</h2>")
     else:
-        captcha_token=request.POST.get("g-recaptcha-response")
-        cap_url="https://www.google.com/recaptcha/api/siteverify"
-        cap_secret="6LeWtqUZAAAAANlv3se4uw5WAg-p0X61CJjHPxKT"
-        cap_data={"secret":cap_secret,"response":captcha_token}
-        cap_server_response=requests.post(url=cap_url,data=cap_data)
-        cap_json=json.loads(cap_server_response.text)
+        # TEMPORARILY COMMENT OUT CAPTCHA VALIDATION FOR TESTING
+        """
+        captcha_token = request.POST.get("g-recaptcha-response")
+        cap_url = "https://www.google.com/recaptcha/api/siteverify"
+        cap_secret = "6LdKfZwrAAAAAOQDEHfZAWYNahzeODcDQBpSceFF"
+        cap_data = {"secret": cap_secret, "response": captcha_token}
+        cap_server_response = requests.post(url=cap_url, data=cap_data)
+        cap_json = json.loads(cap_server_response.text)
 
-        if cap_json['success']==False:
-            messages.error(request,"Invalid Captcha Try Again")
+        if cap_json['success'] == False:
+            messages.error(request, "Invalid Captcha Try Again")
             return HttpResponseRedirect("/")
-
-        user=EmailBackEnd.authenticate(request,username=request.POST.get("email"),password=request.POST.get("password"))
-        if user!=None:
-            login(request,user)
-            if user.user_type=="1":
+        """
+        
+        # Use the EmailBackEnd for authentication
+        user = EmailBackEnd.authenticate(request, username=request.POST.get("email"), password=request.POST.get("password"))
+        
+        if user != None:
+            # IMPORTANT: Specify the backend when logging in
+            login(request, user, backend='student_management_app.EmailBackEnd.EmailBackEnd')
+            
+            if user.user_type == "1":
                 return HttpResponseRedirect('/admin_home')
-            elif user.user_type=="2":
+            elif user.user_type == "2":
                 return HttpResponseRedirect(reverse("staff_home"))
             else:
                 return HttpResponseRedirect(reverse("student_home"))
         else:
-            messages.error(request,"Invalid Login Details")
+            messages.error(request, "Invalid Login Details")
             return HttpResponseRedirect("/")
 
 

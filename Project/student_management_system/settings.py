@@ -86,15 +86,16 @@ WSGI_APPLICATION = 'student_management_system.wsgi.application'
 
 DATABASES = {
     'default': {
-        #=====Enable Only Making Project Live on Heroku====
-         'ENGINE': 'django.db.backends.sqlite3',
-         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-        #'ENGINE':'django.db.backends.mysql',
-        #'NAME':'student_management_system',
-        #'USER':'student_management_system',
-        #'PASSWORD':'student_management_password',
-        #'HOST':'localhost',
-        #'PORT':'3306'
+
+        'ENGINE':'django.db.backends.mysql',
+        'NAME':'student_management_db',
+        'USER':'root',
+        'PASSWORD':'root',
+        'HOST':'localhost',
+        'PORT':'3306',
+        'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
+        }
     }
 }
 
@@ -137,7 +138,9 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 AUTH_USER_MODEL="student_management_app.CustomUser"
-AUTHENTICATION_BACKENDS=['student_management_app.EmailBackEnd.EmailBackEnd']
+AUTHENTICATION_BACKENDS=[
+    'django.contrib.auth.backends.ModelBackend',
+    'student_management_app.EmailBackEnd.EmailBackEnd']
 
 EMAIL_BACKEND="django.core.mail.backends.filebased.EmailBackend"
 EMAIL_FILE_PATH=os.path.join(BASE_DIR,"sent_mails")
